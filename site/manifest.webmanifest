@@ -1,0 +1,15 @@
+{
+  "name": "Pachecode Receptor",
+  "short_name": "Pachecode",
+  "description": "Receba arquivos por QR Codes sem enviar dados para servidores externos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c1211",
+  "theme_color": "#111816",
+  "icons": [
+    { "src": "icons/pachecode-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/pachecode-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/pachecode.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

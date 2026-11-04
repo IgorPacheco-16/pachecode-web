@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#111816" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self'"
+    />
+    <meta
+      name="description"
+      content="Receba arquivos Pachecode pela câmera, sem enviar dados para a internet."
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/pachecode.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/pachecode-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Pachecode — Receptor</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div class="brand-mark" aria-hidden="true">P</div>
+        <div>
+          <p class="eyebrow">Pachecode v0.2</p>
+          <h1>Receba pela câmera.<br /><span>Baixe sem nuvem.</span></h1>
+        </div>
+      </header>
+
+      <section class="scanner-card" aria-labelledby="scanner-title">
+        <div class="section-heading">
+          <div>
+            <p class="step">01 · captura</p>
+            <h2 id="scanner-title">Aponte para a sequência</h2>
+          </div>
+          <span id="privacyBadge" class="privacy-badge">Tudo fica neste aparelho</span>
+        </div>
+
+        <div class="camera-frame">
+          <video id="camera" playsinline muted aria-label="Visualização da câmera traseira"></video>
+          <canvas id="captureCanvas" hidden></canvas>
+          <div class="scan-guide" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </div>
+          <div id="cameraPlaceholder" class="camera-placeholder">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M13 18h9l4-6h12l4 6h9a6 6 0 0 1 6 6v25a6 6 0 0 1-6 6H13a6 6 0 0 1-6-6V24a6 6 0 0 1 6-6Z" />
+              <circle cx="32" cy="36" r="11" />
+            </svg>
+            <p>A câmera só inicia após seu toque.</p>
+          </div>
+        </div>
+
+        <div class="actions primary-actions">
+          <button id="startButton" class="button button-primary" type="button">Iniciar câmera</button>
+          <button id="stopButton" class="button button-secondary" type="button" disabled>Interromper</button>
+          <button id="restartButton" class="button button-ghost" type="button">Reiniciar captura</button>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite">
+          Pronto. Use HTTPS e autorize a câmera quando solicitado.
+        </p>
+      </section>
+
+      <section class="progress-card" aria-labelledby="progress-title">
+        <div class="section-heading compact">
+          <div>
+            <p class="step">02 · montagem</p>
+            <h2 id="progress-title">Progresso da transferência</h2>
+          </div>
+          <strong id="percentLabel" class="percent">0%</strong>
+        </div>
+
+        <label class="transfer-picker">
+          Transferência
+          <select id="transferSelect" disabled>
+            <option>Nenhuma transferência detectada</option>
+          </select>
+        </label>
+        <div class="progress-track" aria-hidden="true">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div class="metrics">
+          <div><strong id="receivedCount">0</strong><span>recebidos</span></div>
+          <div><strong id="remainingCount">—</strong><span>restantes</span></div>
+          <div><strong id="duplicateCount">0</strong><span>duplicados</span></div>
+        </div>
+      </section>
+
+      <section id="resultCard" class="result-card" aria-labelledby="result-title" hidden>
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <div>
+          <p class="step">03 · concluído</p>
+          <h2 id="result-title">Arquivo verificado</h2>
+          <p id="resultDetails" class="result-details"></p>
+        </div>
+        <div class="actions result-actions">
+          <a id="downloadButton" class="button button-primary" download>Salvar arquivo</a>
+          <button id="shareButton" class="button button-secondary" type="button">Compartilhar</button>
+        </div>
+      </section>
+
+      <footer>
+        <p>Sem upload, sem conta, sem servidor externo.</p>
+        <p>Protocolo Pachecode v1 · receptor v0.2</p>
+      </footer>
+    </main>
+
+    <script src="vendor/jsQR.js"></script>
+    <script src="vendor/pako.min.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
