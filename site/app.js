@@ -4,6 +4,8 @@ const elements = {
   video: document.querySelector("#camera"),
   canvas: document.querySelector("#captureCanvas"),
   placeholder: document.querySelector("#cameraPlaceholder"),
+  cameraState: document.querySelector("#cameraState"),
+  scanGuide: document.querySelector("#scanGuide"),
   start: document.querySelector("#startButton"),
   stop: document.querySelector("#stopButton"),
   restart: document.querySelector("#restartButton"),
@@ -24,6 +26,8 @@ let registry = new CaptureRegistry();
 let stream = null;
 let animationFrame = null;
 let processing = false;
+let cameraState = "off";
+let cameraRequestId = 0;
 let activeTransferId = null;
 const completed = new Map();
 const objectUrls = new Set();
@@ -31,6 +35,22 @@ const objectUrls = new Set();
 function setStatus(message, isError = false) {
   elements.status.textContent = message;
   elements.status.classList.toggle("error", isError);
+}
+
+function setCameraState(state) {
+  cameraState = state;
+  const active = state === "active";
+  elements.video.hidden = !active;
+  elements.scanGuide.hidden = !active;
+  elements.placeholder.hidden = active;
+  elements.start.disabled = state === "starting" || active;
+  elements.stop.disabled = !active;
+  const messages = {
+    off: "Câmera desligada. Toque em “Iniciar câmera”.",
+    starting: "Iniciando câmera…",
+    error: "Falha ao iniciar a câmera. Tente novamente.",
+  };
+  if (!active) elements.cameraState.textContent = messages[state];
 }
 
 function updateTransferPicker(transferId, filename) {
@@ -82,7 +102,7 @@ async function processPayload(payload) {
   if (session.complete) await prepareDownload(block.transferId, session);
 }
 
-async function scanFrame() {
+export async function scanFrame() {
   if (!stream) return;
   if (!processing && elements.video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
     processing = true;
@@ -102,44 +122,69 @@ async function scanFrame() {
       processing = false;
     }
   }
-  animationFrame = requestAnimationFrame(scanFrame);
+  if (stream) animationFrame = requestAnimationFrame(scanFrame);
 }
 
-async function startCamera() {
+export async function startCamera() {
+  if (cameraState === "starting" || cameraState === "active") return;
   if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+    setCameraState("error");
     setStatus("A câmera exige uma origem HTTPS confiável (ou localhost no próprio aparelho).", true);
     return;
   }
   if (!globalThis.jsQR || !globalThis.pako) {
+    setCameraState("error");
     setStatus("Dependências locais do receptor não foram carregadas.", true);
     return;
   }
+  const requestId = ++cameraRequestId;
+  let requestedStream = null;
+  setCameraState("starting");
+  setStatus("Iniciando câmera… Autorize o acesso se o navegador solicitar.");
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
+    requestedStream = await navigator.mediaDevices.getUserMedia({
       audio: false,
       video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
     });
+    if (requestId !== cameraRequestId) {
+      requestedStream.getTracks().forEach((track) => track.stop());
+      return;
+    }
+    stream = requestedStream;
+    elements.video.autoplay = true;
+    elements.video.playsInline = true;
+    elements.video.muted = true;
+    elements.video.defaultMuted = true;
     elements.video.srcObject = stream;
+    // O Safari/iOS precisa que o elemento participe do layout para iniciar a reprodução.
+    // O placeholder continua por cima até play() confirmar que a prévia está ativa.
+    elements.video.hidden = false;
     await elements.video.play();
-    elements.placeholder.hidden = true;
-    elements.start.disabled = true;
-    elements.stop.disabled = false;
+    if (requestId !== cameraRequestId) return;
+    setCameraState("active");
     setStatus("Câmera ativa. Mantenha o QR Code dentro da moldura.");
     animationFrame = requestAnimationFrame(scanFrame);
   } catch (error) {
-    setStatus(`Não foi possível iniciar a câmera: ${error.message}`, true);
+    if (requestedStream) requestedStream.getTracks().forEach((track) => track.stop());
+    if (stream === requestedStream) stream = null;
+    elements.video.pause();
+    elements.video.srcObject = null;
+    if (requestId !== cameraRequestId) return;
+    setCameraState("error");
+    const detail = error?.message || error?.name || "erro desconhecido";
+    setStatus(`Não foi possível iniciar a câmera: ${detail}`, true);
   }
 }
 
-function stopCamera() {
+export function stopCamera() {
+  cameraRequestId += 1;
   if (animationFrame) cancelAnimationFrame(animationFrame);
   animationFrame = null;
   if (stream) stream.getTracks().forEach((track) => track.stop());
   stream = null;
+  elements.video.pause();
   elements.video.srcObject = null;
-  elements.placeholder.hidden = false;
-  elements.start.disabled = false;
-  elements.stop.disabled = true;
+  setCameraState("off");
 }
 
 function restartCapture() {
@@ -174,6 +219,7 @@ async function shareResult() {
   }
 }
 
+setCameraState("off");
 elements.start.addEventListener("click", startCamera);
 elements.stop.addEventListener("click", () => { stopCamera(); setStatus("Captura interrompida. Os blocos recebidos foram mantidos."); });
 elements.restart.addEventListener("click", restartCapture);

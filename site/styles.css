@@ -52,11 +52,12 @@ h2 { margin: 0; font-size: clamp(1.2rem, 4vw, 1.55rem); letter-spacing: -0.025em
 .privacy-badge { color: var(--success); background: rgba(114, 230, 172, 0.08); border: 1px solid rgba(114, 230, 172, 0.24); padding: 7px 9px; border-radius: 999px; font-size: 0.7rem; white-space: nowrap; }
 
 .camera-frame { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 16px; background: #050807; border: 1px solid #30413c; }
-#camera { width: 100%; height: 100%; object-fit: cover; display: block; }
-.camera-placeholder { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--muted); background: linear-gradient(145deg, #111a18, #0a100e); text-align: center; padding: 24px; }
+.camera-frame [hidden] { display: none !important; }
+#camera { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; }
+.camera-placeholder { position: absolute; z-index: 3; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--muted); background: linear-gradient(145deg, #111a18, #0a100e); text-align: center; padding: 24px; }
 .camera-placeholder svg { width: 54px; fill: none; stroke: var(--accent); stroke-width: 2.5; }
 .camera-placeholder p { margin: 0; }
-.scan-guide { position: absolute; inset: 10%; pointer-events: none; }
+.scan-guide { position: absolute; z-index: 2; top: 50%; left: 50%; width: min(68%, 21rem); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
 .scan-guide i { position: absolute; width: 30px; height: 30px; border-color: var(--accent); border-style: solid; }
 .scan-guide i:nth-child(1) { top: 0; left: 0; border-width: 3px 0 0 3px; }
 .scan-guide i:nth-child(2) { top: 0; right: 0; border-width: 3px 3px 0 0; }

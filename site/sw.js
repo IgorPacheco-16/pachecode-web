@@ -1,4 +1,4 @@
-const CACHE_NAME = "pachecode-v0.2.1";
+const CACHE_NAME = "pachecode-v0.2.2";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js", "./protocol.js",
   "./manifest.webmanifest", "./icons/pachecode.svg", "./icons/pachecode-192.png",

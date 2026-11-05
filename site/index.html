@@ -38,9 +38,9 @@
         </div>
 
         <div class="camera-frame">
-          <video id="camera" playsinline muted aria-label="Visualização da câmera traseira"></video>
+          <video id="camera" autoplay playsinline muted hidden aria-label="Visualização ao vivo da câmera traseira"></video>
           <canvas id="captureCanvas" hidden></canvas>
-          <div class="scan-guide" aria-hidden="true">
+          <div id="scanGuide" class="scan-guide" hidden aria-hidden="true">
             <i></i><i></i><i></i><i></i>
           </div>
           <div id="cameraPlaceholder" class="camera-placeholder">
@@ -48,7 +48,7 @@
               <path d="M13 18h9l4-6h12l4 6h9a6 6 0 0 1 6 6v25a6 6 0 0 1-6 6H13a6 6 0 0 1-6-6V24a6 6 0 0 1 6-6Z" />
               <circle cx="32" cy="36" r="11" />
             </svg>
-            <p>A câmera só inicia após seu toque.</p>
+            <p id="cameraState">Câmera desligada. Toque em “Iniciar câmera”.</p>
           </div>
         </div>
 
