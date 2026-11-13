@@ -23,7 +23,7 @@
       <header class="hero">
         <div class="brand-mark" aria-hidden="true">P</div>
         <div>
-          <p class="eyebrow">Pachecode v0.2</p>
+          <p class="eyebrow">Pachecode v0.2.3</p>
           <h1>Receba pela câmera.<br /><span>Baixe sem nuvem.</span></h1>
         </div>
       </header>
@@ -85,6 +85,15 @@
           <div><strong id="remainingCount">—</strong><span>restantes</span></div>
           <div><strong id="duplicateCount">0</strong><span>duplicados</span></div>
         </div>
+        <div id="missingSection" class="missing-blocks" hidden>
+          <div>
+            <span>Blocos pendentes</span>
+            <output id="missingList" aria-live="polite"></output>
+          </div>
+          <button id="copyMissingButton" class="button button-secondary" type="button">
+            Copiar números
+          </button>
+        </div>
       </section>
 
       <section id="resultCard" class="result-card" aria-labelledby="result-title" hidden>
@@ -102,7 +111,7 @@
 
       <footer>
         <p>Sem upload, sem conta, sem servidor externo.</p>
-        <p>Protocolo Pachecode v1 · receptor v0.2</p>
+        <p>Protocolo Pachecode v1 · receptor v0.2.3</p>
       </footer>
     </main>
 

@@ -16,6 +16,9 @@ const elements = {
   received: document.querySelector("#receivedCount"),
   remaining: document.querySelector("#remainingCount"),
   duplicates: document.querySelector("#duplicateCount"),
+  missingSection: document.querySelector("#missingSection"),
+  missingList: document.querySelector("#missingList"),
+  copyMissing: document.querySelector("#copyMissingButton"),
   result: document.querySelector("#resultCard"),
   details: document.querySelector("#resultDetails"),
   download: document.querySelector("#downloadButton"),
@@ -66,13 +69,17 @@ function updateTransferPicker(transferId, filename) {
   elements.transfer.value = transferId;
 }
 
-function renderProgress(session) {
+export function renderProgress(session) {
   const percent = session.percent;
   elements.progress.style.width = `${percent}%`;
   elements.percent.textContent = `${percent}%`;
   elements.received.textContent = String(session.received);
   elements.remaining.textContent = String(session.remaining);
   elements.duplicates.textContent = String(session.duplicates);
+  const missing = session.missingParts();
+  elements.missingList.textContent = missing.length ? missing.join(",") : "Nenhum";
+  elements.copyMissing.disabled = missing.length === 0;
+  elements.missingSection.hidden = false;
 }
 
 async function prepareDownload(transferId, session) {
@@ -202,6 +209,9 @@ function restartCapture() {
   elements.received.textContent = "0";
   elements.remaining.textContent = "—";
   elements.duplicates.textContent = "0";
+  elements.missingList.textContent = "";
+  elements.copyMissing.disabled = true;
+  elements.missingSection.hidden = true;
   elements.result.hidden = true;
   setStatus("Captura reiniciada. Toque em “Iniciar câmera” para começar.");
 }
@@ -219,11 +229,25 @@ async function shareResult() {
   }
 }
 
+async function copyMissingParts() {
+  const session = registry.sessions.get(activeTransferId);
+  if (!session) return;
+  const text = session.missingParts().join(",");
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    setStatus("Números dos blocos pendentes copiados.");
+  } catch (error) {
+    setStatus(`Não foi possível copiar: ${error.message || "permissão negada"}.`, true);
+  }
+}
+
 setCameraState("off");
 elements.start.addEventListener("click", startCamera);
 elements.stop.addEventListener("click", () => { stopCamera(); setStatus("Captura interrompida. Os blocos recebidos foram mantidos."); });
 elements.restart.addEventListener("click", restartCapture);
 elements.share.addEventListener("click", shareResult);
+elements.copyMissing.addEventListener("click", copyMissingParts);
 elements.transfer.addEventListener("change", () => {
   activeTransferId = elements.transfer.value;
   const session = registry.sessions.get(activeTransferId);
